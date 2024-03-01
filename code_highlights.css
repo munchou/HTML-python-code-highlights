@@ -1,0 +1,61 @@
+body {
+    margin: auto;
+    font-family: Trebuchet MS, Tahoma, Verdana, "Segoe UI", Arial, Georgia, Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    background-color: #5a6064;
+    align-items: center;
+    color: #b5bac1;
+}
+
+
+/* CODE FORMATTING */
+
+code_yellowish {
+    color: #dcdcaa;
+}
+
+code_blue {
+    color: #9cdcfe;
+}
+
+code_strongblue {
+    color: #4ec9b0;
+}
+
+code_purplish {
+    color: #c586c0;
+}
+
+code_darkblue {
+    color: #4c86b6;
+}
+
+code_quotes {
+    color: #ce9178;
+}
+
+.code {
+    background: #1e1e1e;
+    border-left: 3px solid #f36d33;
+    color: #9cdcfe;
+    /color: #FFFFFF;
+    page-break-inside: avoid;
+    font-family: monospace;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    margin: 0.5rem 0;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1rem 0.5rem;
+    display: block;
+    word-wrap: break-word;
+}
+
+variable {
+    background: #1e1e1e;
+    color: #9cdcfe;
+    padding: 0 0.2rem;
+}
+
+/* END CODE FORMATTING */

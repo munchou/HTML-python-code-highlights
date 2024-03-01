@@ -1,0 +1,44 @@
+<pre><div class="code"><code_purplish>from</code_purplish> <code_strongblue>.forms</code_strongblue> <code_purplish>import</code_purplish> <code_strongblue>ActivationResend</code_strongblue>
+...
+<code_darkblue>def</code_darkblue> <code_yellowish>activation_resend</code_yellowish><code_darkblue>(</code_darkblue><code_blue>request</code_blue><code_darkblue>)</code_darkblue>:
+    <code_purplish>if</code_purplish> <code_blue>request</code_blue>.method == <code_quotes>"POST"</code_quotes>:
+        user_form = <code_strongblue>ActivationResend</code_strongblue><code_darkblue>(</code_darkblue><code_blue>request</code_blue>.POST<code_darkblue>)</code_darkblue>
+        <code_yellowish>print</code_yellowish><code_darkblue>(</code_darkblue><code_quotes>"REQUEST POST"</code_quotes><code_darkblue>)</code_darkblue>
+
+        <code_purplish>if</code_purplish> user_form.<code_yellowish>is_valid</code_yellowish><code_darkblue>(</code_darkblue><code_darkblue>)</code_darkblue>:
+            <code_yellowish>print</code_yellowish><code_darkblue>(</code_darkblue><code_quotes>"VALID FORM"</code_quotes><code_darkblue>)</code_darkblue>
+            username = user_form.cleaned_data[<code_quotes>"username_input"</code_quotes>]
+            email = user_form.cleaned_data[<code_quotes>"email_input"</code_quotes>]
+            <code_yellowish>print</code_yellowish><code_darkblue>(</code_darkblue>username, email<code_darkblue>)</code_darkblue>
+            <code_purplish>try</code_purplish>:
+                user = <code_strongblue>User</code_strongblue>.objects.<code_yellowish>get</code_yellowish><code_darkblue>(</code_darkblue>username=username<code_darkblue>)</code_darkblue>
+                <code_yellowish>print</code_yellowish><code_darkblue>(</code_darkblue><code_darkblue>f</code_darkblue><code_quotes>"USER EXISTS: <code_purplish>{</code_purplish>user, <code_strongblue>utils</code_strongblue>.<code_yellowish>decrypt_email</code_yellowish><code_darkblue>(</code_darkblue>user<code_darkblue>)</code_darkblue><code_purplish>}</code_purplish>"</code_quotes><code_darkblue>)</code_darkblue>
+                <code_purplish>if</code_purplish> email == <code_strongblue>utils</code_strongblue>.<code_yellowish>decrypt_email</code_yellowish><code_darkblue>(</code_darkblue>user<code_darkblue>)</code_darkblue>:
+                    <code_yellowish>print</code_yellowish><code_darkblue>(</code_darkblue><code_quotes>"RIGHT email!"</code_quotes><code_darkblue>)</code_darkblue>
+                    # Removing the previous tokens, <code_purplish>if</code_purplish> any:
+                    all_tokens = <code_strongblue>TokenRegistration</code_strongblue>.objects.filter<code_darkblue>(</code_darkblue>user=user.id<code_darkblue>)</code_darkblue>
+                    <code_purplish>for</code_purplish> token in all_tokens:
+                        token.<code_yellowish>delete</code_yellowish><code_darkblue>(</code_darkblue><code_darkblue>)</code_darkblue>
+
+                    <code_purplish>if</code_purplish> not user.is_active:
+                        token = <code_strongblue>TokenRegistration</code_strongblue>.objects.<code_yellowish>create</code_yellowish><code_darkblue>(</code_darkblue>user=user.id<code_darkblue>)</code_darkblue>
+                        username = <code_strongblue>hashlib</code_strongblue>.<code_yellowish>md5</code_yellowish><code_darkblue>(</code_darkblue>user.username.encode<code_darkblue>(</code_darkblue><code_darkblue>)</code_darkblue><code_darkblue>)</code_darkblue>.<code_yellowish>hexdigest</code_yellowish><code_darkblue>(</code_darkblue><code_darkblue>)</code_darkblue>
+                        <code_yellowish>signup_token_email</code_yellowish><code_darkblue>(</code_darkblue><code_blue>request</code_blue>, username, token.id, email<code_darkblue>)</code_darkblue>
+                        <code_purplish>return</code_purplish> <code_yellowish>render</code_yellowish><code_darkblue>(</code_darkblue><code_blue>request</code_blue>, <code_quotes>"users/activation_tokensent.html"</code_quotes><code_darkblue>)</code_darkblue>
+                    <code_purplish>else</code_purplish>:
+                        <code_yellowish>print</code_yellowish><code_darkblue>(</code_darkblue><code_quotes>"USER ACTIVE ALREADY"</code_quotes><code_darkblue>)</code_darkblue>
+                        <code_purplish>return</code_purplish> <code_yellowish>redirect</code_yellowish><code_darkblue>(</code_darkblue><code_quotes><code_quotes><code_quotes>"login"</code_quotes></code_quotes></code_quotes><code_darkblue>)</code_darkblue>
+                <code_purplish>else</code_purplish>:
+                    <code_yellowish>print</code_yellowish><code_darkblue>(</code_darkblue><code_quotes>"Wrong e-mail"</code_quotes>, email, <code_strongblue>utils</code_strongblue>.<code_yellowish>decrypt_email</code_yellowish><code_darkblue>(</code_darkblue>user<code_darkblue>)</code_darkblue><code_darkblue>)</code_darkblue>
+                    <code_purplish>return</code_purplish> <code_yellowish>redirect</code_yellowish><code_darkblue>(</code_darkblue><code_quotes><code_quotes><code_quotes>"login"</code_quotes></code_quotes></code_quotes><code_darkblue>)</code_darkblue>
+
+            <code_purplish>except</code_purplish> <code_strongblue>Exception</code_strongblue>:
+                <code_purplish>return</code_purplish> <code_yellowish>redirect</code_yellowish><code_darkblue>(</code_darkblue><code_quotes><code_quotes><code_quotes>"login"</code_quotes></code_quotes></code_quotes><code_darkblue>)</code_darkblue>
+
+    <code_purplish>else</code_purplish>:
+        user_form = <code_strongblue>ActivationResend</code_strongblue><code_darkblue>(</code_darkblue><code_darkblue>)</code_darkblue>
+    <code_purplish>return</code_purplish> <code_yellowish>render</code_yellowish><code_darkblue>(</code_darkblue>
+        <code_blue>request</code_blue>,
+        <code_quotes>"users/activation_tokenresend.html"</code_quotes>,
+        <code_purplish>{</code_purplish><code_quotes>"user_form"</code_quotes>: user_form<code_purplish>}</code_purplish>,
+    <code_darkblue>)</code_darkblue></div></pre>

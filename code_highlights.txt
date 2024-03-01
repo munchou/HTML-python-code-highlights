@@ -1,0 +1,44 @@
+from .forms import ActivationResend
+...
+def activation_resend(request):
+    if request.method == "POST":
+        user_form = ActivationResend(request.POST)
+        print("REQUEST POST")
+
+        if user_form.is_valid():
+            print("VALID FORM")
+            username = user_form.cleaned_data["username_input"]
+            email = user_form.cleaned_data["email_input"]
+            print(username, email)
+            try:
+                user = User.objects.get(username=username)
+                print(f"USER EXISTS: {user, utils.decrypt_email(user)}")
+                if email == utils.decrypt_email(user):
+                    print("RIGHT email!")
+                    # Removing the previous tokens, if any:
+                    all_tokens = TokenRegistration.objects.filter(user=user.id)
+                    for token in all_tokens:
+                        token.delete()
+
+                    if not user.is_active:
+                        token = TokenRegistration.objects.create(user=user.id)
+                        username = hashlib.md5(user.username.encode()).hexdigest()
+                        signup_token_email(request, username, token.id, email)
+                        return render(request, "users/activation_tokensent.html")
+                    else:
+                        print("USER ACTIVE ALREADY")
+                        return redirect("login")
+                else:
+                    print("Wrong e-mail", email, utils.decrypt_email(user))
+                    return redirect("login")
+
+            except Exception:
+                return redirect("login")
+
+    else:
+        user_form = ActivationResend()
+    return render(
+        request,
+        "users/activation_tokenresend.html",
+        {"user_form": user_form},
+    )
