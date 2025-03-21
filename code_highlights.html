@@ -8,52 +8,59 @@
     
 <body>
 
-<pre><div class="code">from .forms import ActivationResend
-...
-def activation_resend(request):
-    if request.method == "POST":
-        user_form = ActivationResend(request.POST)
-        print("REQUEST POST")
 
-        if user_form.is_valid():
-            print("VALID FORM")
-            username = user_form.cleaned_data["username_input"]
-            email = user_form.cleaned_data["email_input"]
-            print(username, email)
-            try:
-                user = User.objects.get(username=username)
-                print(f"USER EXISTS: {user, utils.decrypt_email(user)}")
-                if email == utils.decrypt_email(user):
-                    print("RIGHT email!")
-                    # Removing the previous tokens, if any:
-                    all_tokens = TokenRegistration.objects.filter(user=user.id)
-                    for token in all_tokens:
-                        token.delete()
 
-                    if not user.is_active:
-                        token = TokenRegistration.objects.create(user=user.id)
-                        username = hashlib.md5(user.username.encode()).hexdigest()
-                        signup_token_email(request, username, token.id, email)
-                        return render(request, "users/activation_tokensent.html")
-                    else:
-                        print("USER ACTIVE ALREADY")
-                        return redirect("login")
-                else:
-                    print("Wrong e-mail", email, utils.decrypt_email(user))
-                    return redirect("login")
 
-            except Exception:
-                return redirect("login")
+<pre><div class="code">from .forms import (
+    UserRegistrationForm,
+    LoginForm,
+    ProfileForm,
+    SkillsForm,
+    ProfileUpdateForm,
+    UserContactForm,
+    ChangePasswordForm,
+    ResetPasswordForm,
+    ActivationResend,
+)
+    from .models import User, Profile, TokenRegistration
+from offers.models import JobOffer
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
-    else:
-        user_form = ActivationResend()
-    return render(
-        request,
-        "users/activation_tokenresend.html",
-        {"user_form": user_form},
-    )</div></pre>
+from utils import utils
+import os
+import six
+import datetime
+import hashlib # Comment in a line to check
 
-<pre><div class="code"><code_purplish>from</code_purplish> <code_strongblue>.forms</code_strongblue> <code_purplish>import</code_purplish> <code_strongblue>ActivationResend</code_strongblue>
+@loginrequired # Bloubloubloup
+
+class AccountActivationTokenGenerator(forms.PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp): # Comment
+        return (
+            six.text_type(user.pk)
+            + six.text_type(timestamp)
+            + six.text_type(user.is_active)
+        )
+
+teststs "quote here and there" Hello
+those are "simple ones UserRegistrationForm hihihi"
+    NOTHING HERE but a tab
+no tab in here
+"simple regular quote"
+before regular quote "regular quote" after regular quote
+"split line comiiing
+with a line in the middle and a def name _make_hash_value
+class and ending here."
+coucou "quote here that is cut
+and closes here." bloubloup
+
+# Comment alone. O am I lonely!
+    # Me too I'm lonely with that tab!
+
+account_activation_token = AccountActivationTokenGenerator()</div></pre>
+
+<pre><div class="code">
+<code_purplish>from</code_purplish> <code_strongblue>.forms</code_strongblue> <code_purplish>import</code_purplish> <code_strongblue>ActivationResend</code_strongblue>
 ...
 <code_darkblue>def</code_darkblue> <code_yellowish>activation_resend</code_yellowish><code_darkblue>(</code_darkblue><code_blue>request</code_blue><code_darkblue>)</code_darkblue>:
     <code_purplish>if</code_purplish> <code_blue>request</code_blue>.method == <code_quotes>"POST"</code_quotes>:
